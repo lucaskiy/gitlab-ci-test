@@ -1,0 +1,33 @@
+image: docker:latest
+
+services:
+  - docker:dind
+
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_DRIVER: overlay2
+
+before_script:
+  - apk update
+  - apk add --no-cache docker-compose
+
+stages:
+  - build
+  # - test
+
+# Stage 1: Build the my-dbt-image Docker image
+build_image:
+  stage: build
+  script:
+    - docker build -t my-dbt-image . # Build the Docker image from the Dockerfile
+    - docker-compose up -d # Start MySQL and dbt containers
+    - sleep 30 # Allow time for the MySQL database to start up
+    # - docker-compose exec mysql mysql -u root -prootpassword -e "SHOW DATABASES;" # Check MySQL connection
+    # - docker-compose exec dbt dbt debug # Ensure dbt is properly set up
+    - docker-compose exec dbt dbt test # Run the dbt tests
+  only:
+    - merge_requests
+    - main
+
+after_script:
+  - docker-compose down # Clean up all running containers after the job

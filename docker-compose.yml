@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  dbt:
+    image: my-dbt-image
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      - DBT_PROFILES_DIR=/app/project
+      - DBT_PROJECT_DIR=/app/project
+    command: tail -f /dev/null  
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: dbt_db
+      MYSQL_USER: dbt_user
+      MYSQL_PASSWORD: dbt_password
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

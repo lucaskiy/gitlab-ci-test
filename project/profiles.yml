@@ -1,0 +1,11 @@
+project:
+  target: dev
+  outputs:
+    dev:
+      host: mysql
+      type: mysql
+      port: 3306  
+      database: dbt_db 
+      schema: dbt_db
+      username: dbt_user
+      password: dbt_password
